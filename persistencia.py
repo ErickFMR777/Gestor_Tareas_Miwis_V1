@@ -54,8 +54,9 @@ def cargar_tareas() -> pd.DataFrame:
     try:
         if not TAREAS_FILE.exists():
             return pd.DataFrame(columns=[
-                'id', 'Nombre de la tarea', 'Materia', 
-                'Fecha recibido', 'Fecha de entrega', 'Terminado'
+                'id', 'Nombre de la actividad', 'Materia',
+                'Tipo de actividad', 'Fecha de recepción',
+                'Fecha de entrega', 'Terminado'
             ])
         
         with open(TAREAS_FILE, 'r', encoding='utf-8') as f:
@@ -63,20 +64,36 @@ def cargar_tareas() -> pd.DataFrame:
         
         if not datos:
             return pd.DataFrame(columns=[
-                'id', 'Nombre de la tarea', 'Materia', 
-                'Fecha recibido', 'Fecha de entrega', 'Terminado'
+                'id', 'Nombre de la actividad', 'Materia',
+                'Tipo de actividad', 'Fecha de recepción',
+                'Fecha de entrega', 'Terminado'
             ])
         
         df = pd.DataFrame(datos)
         
+        # Migrar columnas antiguas si existen
+        if 'Nombre de la tarea' in df.columns and 'Nombre de la actividad' not in df.columns:
+            df.rename(columns={'Nombre de la tarea': 'Nombre de la actividad'}, inplace=True)
+        if 'Fecha recibido' in df.columns and 'Fecha de recepción' not in df.columns:
+            df.rename(columns={'Fecha recibido': 'Fecha de recepción'}, inplace=True)
+        
         # Asegurar columnas necesarias
         columnas_requeridas = [
-            'id', 'Nombre de la tarea', 'Materia', 
-            'Fecha recibido', 'Fecha de entrega', 'Terminado'
+            'id', 'Nombre de la actividad', 'Materia',
+            'Tipo de actividad', 'Fecha de recepción',
+            'Fecha de entrega', 'Terminado'
         ]
         for col in columnas_requeridas:
             if col not in df.columns:
-                df[col] = '' if col != 'Terminado' else ''
+                if col == 'Terminado':
+                    df[col] = False
+                elif col == 'Tipo de actividad':
+                    df[col] = 'Tarea'
+                else:
+                    df[col] = ''
+        
+        # Asegurar que Terminado sea booleano
+        df['Terminado'] = df['Terminado'].apply(lambda x: bool(x) if not isinstance(x, bool) else x)
         
         return df[columnas_requeridas]
     

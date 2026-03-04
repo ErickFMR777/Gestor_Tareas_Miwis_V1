@@ -39,7 +39,7 @@ env/
 .streamlit/cache/
 .streamlit/logs/
 
-# Data (opcional: comentar si quieres versionar)
+# Data (descomentar si no quieres versionar datos)
 # data/tareas.json
 
 # Backups

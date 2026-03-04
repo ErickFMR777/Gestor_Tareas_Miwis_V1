@@ -18,7 +18,7 @@ from typing import Optional
 # ============================================================================
 
 st.set_page_config(
-    page_title="Gestor de Tareas Miwis",
+    page_title="Gestor de Actividades Académicas de Miwiwita",
     page_icon="📚",
     layout="wide",
     initial_sidebar_state="collapsed"
@@ -668,31 +668,33 @@ class GestorTareas:
     
     @staticmethod
     def inicializar():
-        """Inicializa el DataFrame de tareas en session_state"""
-        if "tareas" not in st.session_state:
-            st.session_state["tareas"] = cargar_tareas()
+        """Inicializa el DataFrame de tareas en session_state, siempre sincroniza desde archivo"""
+        st.session_state["tareas"] = cargar_tareas()
     
     @staticmethod
-    def agregar_tarea(nombre: str, materia: str, fecha_recibido: str, fecha_entrega: str) -> tuple[bool, str]:
+    def agregar_tarea(nombre: str, materia: str, tipo_actividad: str, fecha_recibido: str, fecha_entrega: str) -> tuple[bool, str]:
         """
-        Agrega una nueva tarea
+        Agrega una nueva actividad
         
         Returns:
             (éxito, mensaje)
         """
         # Validaciones
         if not nombre.strip():
-            return False, "❌ El nombre de la tarea no puede estar vacío"
+            return False, "❌ El nombre de la actividad no puede estar vacío"
         if not materia.strip():
             return False, "❌ La materia no puede estar vacía"
         if len(nombre) > 200:
             return False, "❌ El nombre es demasiado largo (máx. 200 caracteres)"
+        if tipo_actividad not in ("Tarea", "Evaluación"):
+            return False, "❌ Tipo de actividad inválido"
         
         nueva_tarea = {
             "id": str(uuid4()),
-            "Nombre de la tarea": nombre.strip(),
+            "Nombre de la actividad": nombre.strip(),
             "Materia": materia.strip(),
-            "Fecha recibido": fecha_recibido,
+            "Tipo de actividad": tipo_actividad,
+            "Fecha de recepción": fecha_recibido,
             "Fecha de entrega": fecha_entrega,
             "Terminado": False
         }
@@ -703,7 +705,7 @@ class GestorTareas:
             ignore_index=True
         )
         guardar_tareas(st.session_state["tareas"])
-        return True, "✅ Tarea agregada correctamente"
+        return True, "✅ Actividad agregada correctamente"
     
     @staticmethod
     def toggle_terminada(task_id: str):
@@ -727,16 +729,20 @@ class GestorTareas:
     
     @staticmethod
     def obtener_estadisticas() -> dict:
-        """Obtiene estadísticas de tareas"""
+        """Obtiene estadísticas de actividades"""
         df = st.session_state["tareas"]
         total = len(df)
         terminadas = len(df[df['Terminado'] == True])
         pendientes = total - terminadas
+        tareas = len(df[df.get('Tipo de actividad', pd.Series(['Tarea'] * total)) == 'Tarea']) if 'Tipo de actividad' in df.columns else total
+        evaluaciones = len(df[df['Tipo de actividad'] == 'Evaluación']) if 'Tipo de actividad' in df.columns else 0
         
         return {
             "total": total,
             "terminadas": terminadas,
             "pendientes": pendientes,
+            "tareas": tareas,
+            "evaluaciones": evaluaciones,
             "porcentaje": (terminadas / total * 100) if total > 0 else 0
         }
 
@@ -752,34 +758,34 @@ def pantalla_login():
     
     col1, col2, col3 = st.columns([1.2, 1, 1.2])
     with col2:
-        # Branding
         st.markdown("""
-        <div class="login-wrapper">
-            <div class="login-brand">
-                <div class="brand-icon">📚</div>
-                <h1>Miwis</h1>
-                <p>Gestor de Tareas Académicas</p>
+        <div style="text-align: center; padding: 3rem 0 1.5rem 0;">
+            <div style="font-size: 3.5rem; margin-bottom: 1rem;">📚</div>
+            <h1 style="font-family: 'Poppins', sans-serif; font-size: 1.8rem; font-weight: 700; color: #e2e8f0; margin-bottom: 0.5rem; letter-spacing: -0.5px;">
+                Gestor de Actividades Académicas
+            </h1>
+            <div style="display: inline-block; background: linear-gradient(135deg, rgba(124,58,237,0.15), rgba(6,182,212,0.15)); border: 1px solid rgba(124,58,237,0.3); border-radius: 20px; padding: 0.4rem 1.5rem; margin-bottom: 1.5rem;">
+                <span style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; background: linear-gradient(135deg, #a78bfa, #06b6d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                    ✨ Miwiwita
+                </span>
             </div>
+            <p style="color: #64748b; font-size: 0.9rem;">Ingresa tu código de acceso para continuar</p>
         </div>
         """, unsafe_allow_html=True)
         
-        # Card de login con glass effect
-        st.markdown("""
-        <div class="login-glass" style="margin: -1rem auto 0 auto;">
-            <h2>Bienvenido de vuelta</h2>
-            <p>Ingresa tu código para continuar</p>
-        </div>
-        """, unsafe_allow_html=True)
+        with st.form("form_login"):
+            codigo = st.text_input(
+                "🔒 Código de acceso",
+                type="password",
+                placeholder="Ingresa tu código de 4 dígitos",
+                max_chars=4
+            )
+            
+            st.markdown("<div style='height: 0.5rem;'></div>", unsafe_allow_html=True)
+            
+            ingresar = st.form_submit_button("🔓 Ingresar", use_container_width=True)
         
-        codigo = st.text_input(
-            "Código de acceso",
-            type="password",
-            placeholder="****",
-            max_chars=4,
-            label_visibility="collapsed"
-        )
-        
-        if st.button("🔓 Ingresar", use_container_width=True):
+        if ingresar:
             if GestorAutenticacion.verificar_codigo(codigo):
                 st.session_state["autenticado"] = True
                 st.rerun()
@@ -806,8 +812,8 @@ def pantalla_principal():
     <div class="hero-banner">
         <div class="hero-content">
             <div class="hero-text">
-                <h1>📚 Tareas Miwis</h1>
-                <p>Control de actividades académicas de Miwiwita · {fecha_actual}</p>
+                <h1>📚 Gestor de Actividades Académicas de Miwiwita</h1>
+                <p>{fecha_actual}</p>
             </div>
             <div class="hero-stats">
                 <div class="stat-badge">
@@ -829,8 +835,8 @@ def pantalla_principal():
     
     # Tabs principales
     tab_tareas, tab_agregar, tab_config = st.tabs([
-        "📋 Mis Tareas",
-        "➕ Agregar Tarea",
+        "📋 Mis Actividades",
+        "➕ Agregar Actividad",
         "⚙️ Configuración"
     ])
     
@@ -840,99 +846,182 @@ def pantalla_principal():
     with tab_tareas:
         df = st.session_state["tareas"]
         
+        # Estadísticas generales
+        stats = GestorTareas.obtener_estadisticas()
+        porcentaje = stats['porcentaje']
+        
+        col_s1, col_s2, col_s3, col_s4, col_s5, col_s6 = st.columns(6)
+        with col_s1:
+            st.metric(label="📊 Total", value=stats['total'])
+        with col_s2:
+            st.metric(label="✅ Completadas", value=stats['terminadas'])
+        with col_s3:
+            st.metric(label="⏳ Pendientes", value=stats['pendientes'])
+        with col_s4:
+            st.metric(label="📈 Progreso", value=f"{porcentaje:.0f}%")
+        with col_s5:
+            st.metric(label="📝 Tareas", value=stats.get('tareas', 0))
+        with col_s6:
+            st.metric(label="📄 Evaluaciones", value=stats.get('evaluaciones', 0))
+        
+        st.progress(porcentaje / 100 if porcentaje > 0 else 0, text=f"{porcentaje:.0f}% de actividades completadas")
+        
+        # Estadísticas por materia
+        if not df.empty:
+            with st.expander("📊 Actividades por materia", expanded=False):
+                materias_count = df['Materia'].value_counts()
+                for materia_nombre, cantidad in materias_count.items():
+                    pendientes_m = len(df[(df['Materia'] == materia_nombre) & (df['Terminado'] == False)])
+                    completadas_m = cantidad - pendientes_m
+                    st.markdown(f"**{materia_nombre}**: {cantidad} actividades ({completadas_m} ✅ / {pendientes_m} ⏳)")
+        
+        st.divider()
+        
         if df.empty:
             st.markdown("""
             <div class="card" style="text-align: center; padding: 3rem 2rem;">
                 <div style="font-size: 3rem; margin-bottom: 1rem;">📭</div>
-                <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem;">No hay tareas registradas</div>
-                <div style="color: var(--text-muted); font-size: 0.9rem;">¡Crea una nueva tarea para comenzar!</div>
+                <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem;">No hay actividades registradas</div>
+                <div style="color: var(--text-muted); font-size: 0.9rem;">¡Crea una nueva actividad para comenzar!</div>
             </div>
             """, unsafe_allow_html=True)
         else:
-            # Crear tabla personalizada con columnas adicionales
-            df_display = df.copy()
-            df_display['Fecha recibido'] = pd.to_datetime(df_display['Fecha recibido']).dt.strftime('%d/%m/%Y')
-            df_display['Fecha de entrega'] = pd.to_datetime(df_display['Fecha de entrega']).dt.strftime('%d/%m/%Y')
-            df_display['Estado'] = df_display['Terminado'].apply(
-                lambda x: "✅ Completada" if x else "⏳ Pendiente"
-            )
-            
-            # Reordenar columnas para display
-            columnas_display = [
-                'Nombre de la tarea',
-                'Materia',
-                'Fecha recibido',
-                'Fecha de entrega',
-                'Estado'
-            ]
-            
-            # Mostrar tabla
-            col_tabla = st.container()
-            with col_tabla:
-                # Crear dos sub-columnas para tabla y acciones
-                st.dataframe(
-                    df_display[columnas_display],
-                    width="stretch",
-                    hide_index=True,
-                    height=400
-                )
-            
-            st.divider()
-            
-            # Sección de acciones
-            st.subheader("⚙️ Gestionar Tareas")
-            
-            col1, col2 = st.columns(2)
-            
-            with col1:
-                st.write("**Cambiar estado de tarea:**")
-                # Mostrar TODAS las tareas para poder marcar/desmarcar
-                opciones_estado = df['Nombre de la tarea'].tolist()
-                if opciones_estado:
-                    tarea_marcar = st.selectbox(
-                        "Selecciona una tarea",
-                        options=opciones_estado,
-                        label_visibility="collapsed",
-                        key="select_marcar"
+            # ---- FILTROS ----
+            with st.expander("🔍 Filtros", expanded=True):
+                MATERIAS_FILTRO = [
+                    "Todas", "Artística", "Cátedra de la Paz", "Ciencias Naturales",
+                    "Ciencias Sociales", "Educación Ambiental", "Educación Física",
+                    "Ética y Valores", "Geometría", "Informática", "Inglés",
+                    "Lengua Castellana", "Matemáticas", "Ortografía",
+                    "Plan Lector", "Religión", "Danzas", "Patinaje", "Natación"
+                ]
+                
+                fc1, fc2, fc3 = st.columns(3)
+                with fc1:
+                    filtro_materia = st.selectbox(
+                        "📚 Materia",
+                        options=MATERIAS_FILTRO,
+                        key="filtro_materia"
                     )
-                    
-                    # Determinar estado actual de la tarea seleccionada
-                    fila = df[df['Nombre de la tarea'] == tarea_marcar].iloc[0]
-                    esta_terminada = fila['Terminado']
-                    
-                    if esta_terminada:
-                        if st.button("🔄 Marcar como pendiente", use_container_width=True, key="btn_marcar"):
-                            GestorTareas.toggle_terminada(fila['id'])
-                    else:
-                        if st.button("✅ Marcar como completada", use_container_width=True, key="btn_marcar"):
-                            GestorTareas.toggle_terminada(fila['id'])
-                else:
-                    st.info("No hay tareas registradas.")
+                with fc2:
+                    filtro_tipo = st.selectbox(
+                        "🏷️ Tipo de actividad",
+                        options=["Todos", "Tarea", "Evaluación"],
+                        key="filtro_tipo"
+                    )
+                with fc3:
+                    filtro_estado = st.selectbox(
+                        "📋 Estado",
+                        options=["Todos", "Pendientes", "Completadas"],
+                        key="filtro_estado"
+                    )
+                
+                fd1, fd2 = st.columns(2)
+                with fd1:
+                    filtro_fecha_desde = st.date_input(
+                        "📅 Entrega desde",
+                        value=None,
+                        format="DD/MM/YYYY",
+                        key="filtro_fecha_desde"
+                    )
+                with fd2:
+                    filtro_fecha_hasta = st.date_input(
+                        "📅 Entrega hasta",
+                        value=None,
+                        format="DD/MM/YYYY",
+                        key="filtro_fecha_hasta"
+                    )
             
-            with col2:
-                st.write("**Eliminar tarea:**")
-                opciones_eliminar = df['Nombre de la tarea'].tolist()
-                if opciones_eliminar:
-                    tarea_eliminar = st.selectbox(
-                        "Selecciona una tarea",
-                        options=opciones_eliminar,
-                        label_visibility="collapsed",
-                        key="select_eliminar"
-                    )
+            # Aplicar filtros
+            df_filtrado = df.copy()
+            
+            if filtro_materia != "Todas":
+                df_filtrado = df_filtrado[df_filtrado['Materia'] == filtro_materia]
+            
+            if filtro_tipo != "Todos":
+                df_filtrado = df_filtrado[df_filtrado.get('Tipo de actividad', pd.Series(['Tarea'] * len(df_filtrado))) == filtro_tipo]
+            
+            if filtro_estado == "Pendientes":
+                df_filtrado = df_filtrado[df_filtrado['Terminado'] == False]
+            elif filtro_estado == "Completadas":
+                df_filtrado = df_filtrado[df_filtrado['Terminado'] == True]
+            
+            if filtro_fecha_desde is not None:
+                df_filtrado = df_filtrado[pd.to_datetime(df_filtrado['Fecha de entrega'], dayfirst=True) >= pd.Timestamp(filtro_fecha_desde)]
+            
+            if filtro_fecha_hasta is not None:
+                df_filtrado = df_filtrado[pd.to_datetime(df_filtrado['Fecha de entrega'], dayfirst=True) <= pd.Timestamp(filtro_fecha_hasta)]
+            
+            st.caption(f"Mostrando {len(df_filtrado)} de {len(df)} actividades")
+            
+            if df_filtrado.empty:
+                st.info("No se encontraron actividades con los filtros seleccionados.")
+            else:
+                # Encabezados de la tabla
+                col_h1, col_h2, col_h3, col_h4, col_h5, col_h6, col_h7 = st.columns([2.5, 1.5, 1.2, 1.5, 1.5, 1, 1.3])
+                _hdr = '<span style="font-size:1.05rem; font-weight:700; text-transform:uppercase; letter-spacing:0.04em;">'
+                with col_h1:
+                    st.markdown(f"{_hdr}📝 ACTIVIDAD</span>", unsafe_allow_html=True)
+                with col_h2:
+                    st.markdown(f"{_hdr}📚 MATERIA</span>", unsafe_allow_html=True)
+                with col_h3:
+                    st.markdown(f"{_hdr}🏷️ TIPO</span>", unsafe_allow_html=True)
+                with col_h4:
+                    st.markdown(f"{_hdr}📅 RECEPCIÓN</span>", unsafe_allow_html=True)
+                with col_h5:
+                    st.markdown(f"{_hdr}📅 ENTREGA</span>", unsafe_allow_html=True)
+                with col_h6:
+                    st.markdown(f"{_hdr}ESTADO</span>", unsafe_allow_html=True)
+                with col_h7:
+                    st.markdown(f"{_hdr}ACCIONES</span>", unsafe_allow_html=True)
+                
+                st.divider()
+                
+                # Filas de actividades
+                for idx, row in df_filtrado.iterrows():
+                    esta_terminada = row['Terminado']
+                    estado_icon = "✅" if esta_terminada else "‼️"
+                    tipo = row.get('Tipo de actividad', 'Tarea')
+                    tipo_icon = "📝" if tipo == "Tarea" else "📄"
                     
-                    confirmar = st.checkbox(
-                        f"Confirmo eliminar: **{tarea_eliminar}**",
-                        key="check_confirmar_eliminar"
-                    )
+                    fecha_rec = pd.to_datetime(row['Fecha de recepción']).strftime('%d/%m/%Y')
+                    fecha_ent = pd.to_datetime(row['Fecha de entrega']).strftime('%d/%m/%Y')
                     
-                    if st.button("🗑️ Eliminar tarea", use_container_width=True, key="btn_eliminar", type="secondary"):
-                        if confirmar:
-                            task_id = df[df['Nombre de la tarea'] == tarea_eliminar]['id'].iloc[0]
-                            GestorTareas.eliminar_tarea(task_id)
+                    col_info, col_materia, col_tipo, col_frec, col_fent, col_estado, col_acciones = st.columns([2.5, 1.5, 1.2, 1.5, 1.5, 1, 1.3])
+                    
+                    with col_info:
+                        if esta_terminada:
+                            st.markdown(f"~~{row['Nombre de la actividad']}~~")
                         else:
-                            st.warning("⚠️ Marca la casilla de confirmación antes de eliminar.")
-                else:
-                    st.info("No hay tareas para eliminar.")
+                            st.markdown(f"**{row['Nombre de la actividad']}**")
+                    
+                    with col_materia:
+                        st.markdown(row['Materia'])
+                    
+                    with col_tipo:
+                        st.markdown(f"{tipo_icon} {tipo}")
+                    
+                    with col_frec:
+                        st.markdown(fecha_rec)
+                    
+                    with col_fent:
+                        st.markdown(fecha_ent)
+                    
+                    with col_estado:
+                        st.markdown(f"{estado_icon}")
+                    
+                    with col_acciones:
+                        btn_col1, btn_col2 = st.columns(2)
+                        with btn_col1:
+                            if esta_terminada:
+                                if st.button("🔄", key=f"toggle_{row['id']}", help="Marcar como pendiente"):
+                                    GestorTareas.toggle_terminada(row['id'])
+                            else:
+                                if st.button("✅", key=f"toggle_{row['id']}", help="Marcar como completada"):
+                                    GestorTareas.toggle_terminada(row['id'])
+                        with btn_col2:
+                            if st.button("🗑️", key=f"del_{row['id']}", help="Eliminar actividad"):
+                                GestorTareas.eliminar_tarea(row['id'])
     
     # ========================================================================
     # TAB: AGREGAR TAREA
@@ -941,34 +1030,56 @@ def pantalla_principal():
         st.markdown("""
         <div class="card" style="margin-bottom: 1.5rem;">
             <p style="margin: 0; color: var(--text-secondary); font-size: 0.9rem;">
-                📝 Completa el formulario para registrar una nueva tarea académica.
+                📝 Completa el formulario para registrar una nueva actividad académica.
             </p>
         </div>
         """, unsafe_allow_html=True)
+        
+        MATERIAS = [
+            "Artística", "Cátedra de la Paz", "Ciencias Naturales",
+            "Ciencias Sociales", "Educación Ambiental", "Educación Física",
+            "Ética y Valores", "Geometría", "Informática", "Inglés",
+            "Lengua Castellana", "Matemáticas", "Ortografía",
+            "Plan Lector", "Religión", "Danzas", "Patinaje", "Natación"
+        ]
         
         with st.form("form_agregar_tarea", clear_on_submit=True):
             col1, col2 = st.columns(2)
             
             with col1:
                 nombre = st.text_input(
-                    "📝 Nombre de la tarea",
+                    "📝 Nombre de la actividad",
                     placeholder="Ej: Ensayo sobre fotosíntesis",
                     max_chars=200
                 )
-                
+            
+            with col2:
+                materia = st.selectbox(
+                    "📚 Materia",
+                    options=MATERIAS
+                )
+            
+            col3, col4 = st.columns(2)
+            
+            with col3:
+                tipo_actividad = st.selectbox(
+                    "🏷️ Tipo de actividad",
+                    options=["Tarea", "Evaluación"]
+                )
+            
+            with col4:
+                st.markdown("<div style='height: 0.01rem;'></div>", unsafe_allow_html=True)
+            
+            col5, col6 = st.columns(2)
+            
+            with col5:
                 fecha_recibido = st.date_input(
                     "📅 Fecha de recepción",
                     value=datetime.now(),
                     format="DD/MM/YYYY"
                 )
             
-            with col2:
-                materia = st.text_input(
-                    "📚 Materia",
-                    placeholder="Ej: Biología",
-                    max_chars=100
-                )
-                
+            with col6:
                 fecha_entrega = st.date_input(
                     "📅 Fecha de entrega",
                     value=datetime.now() + timedelta(days=7),
@@ -983,7 +1094,7 @@ def pantalla_principal():
             
             with col_btn1:
                 agregar = st.form_submit_button(
-                    "➕ Agregar Tarea",
+                    "➕ Agregar Actividad",
                     use_container_width=True
                 )
             
@@ -991,13 +1102,14 @@ def pantalla_principal():
                 exito, mensaje = GestorTareas.agregar_tarea(
                     nombre,
                     materia,
+                    tipo_actividad,
                     fecha_recibido.strftime("%d/%m/%Y"),
                     fecha_entrega.strftime("%d/%m/%Y")
                 )
                 
                 if exito:
                     st.success(mensaje)
-                    st.balloons()
+                    st.rerun()
                 else:
                     st.error(mensaje)
     
@@ -1063,45 +1175,12 @@ def pantalla_principal():
                             st.error(mensaje)
         
         with col2:
-            st.write("### 📊 Estadísticas Generales")
-            
-            stats = GestorTareas.obtener_estadisticas()
-            
-            porcentaje = stats['porcentaje']
-            st.markdown(f"""
-            <div class="card">
-                <div style="text-align: center; padding: 1.5rem 1rem;">
-                    <div style="font-size: 3rem; font-weight: 800; background: linear-gradient(135deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 0.25rem;">
-                        {stats['total']}
-                    </div>
-                    <div style="color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;">Total de tareas</div>
-                    
-                    <div style="background: rgba(255,255,255,0.04); border-radius: 10px; height: 6px; margin-bottom: 1.5rem; overflow: hidden;">
-                        <div style="background: linear-gradient(90deg, var(--primary), var(--accent)); height: 100%; border-radius: 10px; width: {porcentaje}%; transition: width 0.5s ease;"></div>
-                    </div>
-                    
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                        <div style="background: var(--success-light); border-radius: 12px; padding: 1rem;">
-                            <div style="font-size: 1.8rem; font-weight: 700; color: var(--success); margin-bottom: 0.2rem;">
-                                {stats['terminadas']}
-                            </div>
-                            <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em;">Completadas</div>
-                        </div>
-                        <div style="background: var(--warning-light); border-radius: 12px; padding: 1rem;">
-                            <div style="font-size: 1.8rem; font-weight: 700; color: var(--warning); margin-bottom: 0.2rem;">
-                                {stats['pendientes']}
-                            </div>
-                            <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em;">Pendientes</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
-            
-            st.divider()
+            st.write("### � Sesión")
+            st.markdown("""<p style='color: #94a3b8; font-size: 0.9rem;'>Cierra tu sesión cuando termines de usar la app.</p>""", unsafe_allow_html=True)
             
             if st.button("🚪 Cerrar Sesión", use_container_width=True, type="secondary"):
                 st.session_state["autenticado"] = False
+                st.session_state.pop("tareas", None)
                 st.rerun()
 
 # ============================================================================
