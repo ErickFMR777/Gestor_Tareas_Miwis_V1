@@ -33,6 +33,7 @@ def aplicar_estilos():
     st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');
     
     * {
         margin: 0;
@@ -42,25 +43,48 @@ def aplicar_estilos():
     
     /* Variables de color */
     :root {
-        --primary: #6366f1;
-        --primary-dark: #4f46e5;
-        --primary-light: #818cf8;
+        --primary: #7c3aed;
+        --primary-dark: #6d28d9;
+        --primary-light: #a78bfa;
+        --primary-glow: rgba(124, 58, 237, 0.35);
+        --accent: #06b6d4;
+        --accent-glow: rgba(6, 182, 212, 0.25);
         --success: #10b981;
-        --danger: #ef4444;
+        --success-light: rgba(16, 185, 129, 0.15);
+        --danger: #f43f5e;
+        --danger-light: rgba(244, 63, 94, 0.15);
         --warning: #f59e0b;
-        --dark-bg: #0f172a;
-        --card-bg: #1e293b;
-        --border-color: #334155;
-        --text-primary: #f1f5f9;
+        --warning-light: rgba(245, 158, 11, 0.15);
+        --dark-bg: #0a0e1a;
+        --dark-bg-2: #111827;
+        --card-bg: rgba(17, 24, 39, 0.7);
+        --card-bg-solid: #111827;
+        --glass-bg: rgba(17, 24, 39, 0.45);
+        --glass-border: rgba(255, 255, 255, 0.08);
+        --border-color: rgba(255, 255, 255, 0.06);
+        --border-hover: rgba(124, 58, 237, 0.4);
+        --text-primary: #f8fafc;
         --text-secondary: #cbd5e1;
-        --text-muted: #94a3b8;
+        --text-muted: #64748b;
+        --radius-sm: 8px;
+        --radius-md: 12px;
+        --radius-lg: 16px;
+        --radius-xl: 20px;
+        --shadow-sm: 0 2px 8px rgba(0,0,0,0.2);
+        --shadow-md: 0 8px 24px rgba(0,0,0,0.3);
+        --shadow-lg: 0 16px 48px rgba(0,0,0,0.4);
+        --shadow-glow: 0 0 40px var(--primary-glow);
     }
     
-    /* Fondo y tipografía global */
+    /* Fondo global con patrón sutil */
     html, body, [data-testid="stAppViewContainer"] {
-        background: linear-gradient(135deg, var(--dark-bg) 0%, #1a1f35 100%);
+        background: var(--dark-bg);
+        background-image:
+            radial-gradient(ellipse 80% 60% at 50% -20%, rgba(124,58,237,0.12) 0%, transparent 70%),
+            radial-gradient(ellipse 60% 50% at 80% 50%, rgba(6,182,212,0.06) 0%, transparent 70%);
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         color: var(--text-primary);
+        -webkit-font-smoothing: antialiased;
     }
     
     .main {
@@ -69,150 +93,230 @@ def aplicar_estilos():
     }
     
     [data-testid="stAppViewContainer"] > .main {
-        background: linear-gradient(135deg, var(--dark-bg) 0%, #1a1f35 100%);
+        background: transparent;
     }
     
     /* Contenedor principal */
     [data-testid="stMainBlockContainer"] {
-        padding: 2rem 2.5rem !important;
+        padding: 1.5rem 2.5rem !important;
         max-width: 1400px;
         margin: 0 auto;
     }
     
-    /* Headers */
-    h1, h2, h3, h4, h5, h6 {
-        font-family: 'Poppins', sans-serif;
-        font-weight: 700;
-        color: var(--text-primary);
-        letter-spacing: -0.5px;
+    /* Ocultar header y footer de Streamlit */
+    header[data-testid="stHeader"] {
+        background: transparent !important;
     }
     
-    /* Hero Banner */
+    footer {
+        display: none !important;
+    }
+    
+    #MainMenu {
+        visibility: hidden;
+    }
+    
+    /* Headers */
+    h1, h2, h3, h4, h5, h6 {
+        font-family: 'Space Grotesk', 'Poppins', sans-serif;
+        font-weight: 700;
+        color: var(--text-primary);
+        letter-spacing: -0.02em;
+    }
+    
+    /* ===================== LOGIN ===================== */
+    .login-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 70vh;
+        padding: 2rem;
+        animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    
+    .login-brand {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .login-brand .brand-icon {
+        width: 72px;
+        height: 72px;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+        border-radius: 20px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 12px 32px var(--primary-glow);
+    }
+    
+    .login-brand h1 {
+        font-size: 1.8rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, var(--text-primary) 0%, var(--primary-light) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 0.25rem;
+    }
+    
+    .login-brand p {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+    }
+    
+    .login-glass {
+        background: var(--glass-bg);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-xl);
+        padding: 2.5rem 2rem;
+        max-width: 380px;
+        width: 100%;
+        box-shadow: var(--shadow-lg), 0 0 60px rgba(124,58,237,0.08);
+    }
+    
+    .login-glass h2 {
+        font-size: 1.3rem;
+        text-align: center;
+        margin-bottom: 0.25rem;
+        color: var(--text-primary);
+    }
+    
+    .login-glass p {
+        text-align: center;
+        color: var(--text-muted);
+        font-size: 0.85rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    /* ===================== HERO BANNER ===================== */
     .hero-banner {
-        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-        border-radius: 16px;
-        padding: 2.5rem 3rem;
-        margin-bottom: 2.5rem;
-        box-shadow: 0 20px 60px rgba(99, 102, 241, 0.2);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        animation: slideDown 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        background: linear-gradient(135deg, var(--primary) 0%, #4f46e5 50%, var(--accent) 150%);
+        border-radius: var(--radius-xl);
+        padding: 2rem 2.5rem;
+        margin-bottom: 2rem;
+        box-shadow: var(--shadow-md), 0 0 60px var(--primary-glow);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        position: relative;
+        overflow: hidden;
+        animation: fadeInDown 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    
+    .hero-banner::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -20%;
+        width: 300px;
+        height: 300px;
+        background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+        border-radius: 50%;
+    }
+    
+    .hero-banner::after {
+        content: '';
+        position: absolute;
+        bottom: -30%;
+        left: -10%;
+        width: 200px;
+        height: 200px;
+        background: radial-gradient(circle, rgba(6,182,212,0.15) 0%, transparent 70%);
+        border-radius: 50%;
     }
     
     .hero-content {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        gap: 2rem;
+        gap: 1.5rem;
         flex-wrap: wrap;
+        position: relative;
+        z-index: 1;
     }
     
     .hero-text h1 {
-        font-size: 2.2rem;
-        margin-bottom: 0.5rem;
+        font-size: 1.8rem;
+        margin-bottom: 0.3rem;
         color: white;
+        font-weight: 800;
+        letter-spacing: -0.03em;
     }
     
     .hero-text p {
-        font-size: 1rem;
-        opacity: 0.95;
-        color: rgba(255, 255, 255, 0.9);
+        font-size: 0.9rem;
+        opacity: 0.9;
+        color: rgba(255, 255, 255, 0.85);
         margin: 0;
+        font-weight: 400;
     }
     
     .hero-stats {
         display: flex;
-        gap: 1rem;
+        gap: 0.75rem;
         flex-wrap: wrap;
     }
     
     .stat-badge {
-        background: rgba(255, 255, 255, 0.15);
-        backdrop-filter: blur(10px);
-        padding: 0.75rem 1.5rem;
-        border-radius: 12px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(12px);
+        padding: 0.6rem 1.2rem;
+        border-radius: var(--radius-md);
+        border: 1px solid rgba(255, 255, 255, 0.18);
         display: flex;
+        flex-direction: column;
         align-items: center;
-        gap: 0.5rem;
-        font-weight: 600;
-        font-size: 0.95rem;
+        gap: 0.15rem;
+        font-weight: 500;
+        font-size: 0.8rem;
+        min-width: 90px;
+        transition: transform 0.2s ease;
     }
     
-    .stat-badge strong {
-        font-size: 1.3rem;
-    }
-    
-    /* Cards */
-    .card {
-        background: var(--card-bg);
-        border: 1px solid var(--border-color);
-        border-radius: 12px;
-        padding: 1.5rem;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-    }
-    
-    .card:hover {
-        border-color: var(--primary);
-        box-shadow: 0 8px 25px rgba(99, 102, 241, 0.15);
+    .stat-badge:hover {
         transform: translateY(-2px);
     }
     
-    .card-title {
-        font-family: 'Poppins', sans-serif;
-        font-size: 1.1rem;
+    .stat-badge strong {
+        font-size: 1.4rem;
         font-weight: 700;
-        margin-bottom: 0.5rem;
-        color: var(--text-primary);
     }
     
-    .card-subtitle {
-        font-size: 0.9rem;
-        color: var(--text-muted);
-        margin: 0;
+    .stat-badge span {
+        font-size: 0.7rem;
+        opacity: 0.8;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
     }
     
-    /* Login Container */
-    .login-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 100vh;
-        background: linear-gradient(135deg, var(--dark-bg) 0%, #1a1f35 100%);
+    /* ===================== CARDS ===================== */
+    .card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: var(--shadow-sm);
     }
     
-    .login-card {
-        background: var(--card-bg);
-        border: 1px solid var(--border-color);
-        border-radius: 16px;
-        padding: 3rem;
-        max-width: 400px;
-        width: 100%;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-        animation: slideUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    .card:hover {
+        border-color: var(--border-hover);
+        box-shadow: var(--shadow-md), 0 0 30px rgba(124,58,237,0.08);
+        transform: translateY(-3px);
     }
     
-    .login-card h2 {
-        font-size: 1.8rem;
-        margin-bottom: 0.5rem;
-        text-align: center;
-        color: var(--primary);
-    }
-    
-    .login-card p {
-        text-align: center;
-        color: var(--text-muted);
-        margin-bottom: 2rem;
-        font-size: 0.95rem;
-    }
-    
-    /* Inputs mejorados */
+    /* ===================== INPUTS ===================== */
     input[type="text"], input[type="password"], input[type="date"] {
-        background: rgba(15, 23, 42, 0.8) !important;
-        border: 1px solid var(--border-color) !important;
-        border-radius: 10px !important;
+        background: rgba(10, 14, 26, 0.6) !important;
+        border: 1px solid rgba(255,255,255,0.08) !important;
+        border-radius: var(--radius-md) !important;
         color: var(--text-primary) !important;
-        padding: 12px 16px !important;
+        padding: 14px 16px !important;
         font-family: 'Inter', sans-serif !important;
         transition: all 0.3s ease !important;
         font-size: 0.95rem !important;
@@ -222,7 +326,7 @@ def aplicar_estilos():
     input[type="password"]:focus, 
     input[type="date"]:focus {
         border-color: var(--primary) !important;
-        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1) !important;
+        box-shadow: 0 0 0 3px var(--primary-glow), 0 0 20px rgba(124,58,237,0.1) !important;
         outline: none !important;
     }
     
@@ -230,112 +334,214 @@ def aplicar_estilos():
         color: var(--text-muted) !important;
     }
     
-    /* Botones */
+    /* Labels */
+    .stTextInput > label, .stDateInput > label, .stSelectbox > label {
+        color: var(--text-secondary) !important;
+        font-weight: 500 !important;
+        font-size: 0.85rem !important;
+        letter-spacing: 0.01em !important;
+    }
+    
+    /* ===================== BOTONES ===================== */
     .stButton > button {
         background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%) !important;
         color: white !important;
         border: none !important;
-        border-radius: 10px !important;
-        padding: 12px 24px !important;
+        border-radius: var(--radius-md) !important;
+        padding: 12px 28px !important;
         font-weight: 600 !important;
-        font-family: 'Poppins', sans-serif !important;
+        font-family: 'Space Grotesk', 'Poppins', sans-serif !important;
         cursor: pointer !important;
-        transition: all 0.3s ease !important;
-        font-size: 0.95rem !important;
-        box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3) !important;
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        font-size: 0.9rem !important;
+        box-shadow: 0 4px 16px var(--primary-glow) !important;
+        letter-spacing: 0.01em !important;
     }
     
     .stButton > button:hover {
         transform: translateY(-2px) !important;
-        box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4) !important;
+        box-shadow: 0 8px 28px var(--primary-glow), 0 0 40px rgba(124,58,237,0.15) !important;
+        filter: brightness(1.08) !important;
     }
     
     .stButton > button:active {
-        transform: translateY(0) !important;
+        transform: translateY(0) scale(0.98) !important;
     }
     
     /* Botones secundarios */
     .stButton > button[kind="secondary"] {
-        background: var(--card-bg) !important;
+        background: var(--glass-bg) !important;
+        backdrop-filter: blur(12px) !important;
         color: var(--text-primary) !important;
-        border: 1px solid var(--border-color) !important;
-        box-shadow: none !important;
+        border: 1px solid var(--glass-border) !important;
+        box-shadow: var(--shadow-sm) !important;
     }
     
     .stButton > button[kind="secondary"]:hover {
-        border-color: var(--primary) !important;
-        box-shadow: 0 4px 15px rgba(99, 102, 241, 0.2) !important;
+        border-color: var(--border-hover) !important;
+        box-shadow: var(--shadow-md), 0 0 20px rgba(124,58,237,0.1) !important;
     }
     
-    /* Tabla personalizada */
+    /* form submit */
+    .stFormSubmitButton > button {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%) !important;
+        color: white !important;
+        border: none !important;
+        border-radius: var(--radius-md) !important;
+        padding: 12px 28px !important;
+        font-weight: 600 !important;
+        font-family: 'Space Grotesk', 'Poppins', sans-serif !important;
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        font-size: 0.9rem !important;
+        box-shadow: 0 4px 16px var(--primary-glow) !important;
+    }
+    
+    .stFormSubmitButton > button:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 8px 28px var(--primary-glow) !important;
+        filter: brightness(1.08) !important;
+    }
+    
+    /* ===================== TABS ===================== */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 0;
+        background: var(--glass-bg);
+        backdrop-filter: blur(16px);
+        border-radius: var(--radius-lg);
+        padding: 4px;
+        border: 1px solid var(--glass-border);
+        margin-bottom: 1.5rem;
+    }
+    
+    .stTabs [data-baseweb="tab"] {
+        border-radius: var(--radius-md);
+        padding: 10px 24px;
+        font-family: 'Space Grotesk', sans-serif;
+        font-weight: 500;
+        font-size: 0.88rem;
+        color: var(--text-muted);
+        border: none;
+        background: transparent;
+        transition: all 0.25s ease;
+    }
+    
+    .stTabs [data-baseweb="tab"]:hover {
+        color: var(--text-primary);
+        background: rgba(124,58,237,0.08);
+    }
+    
+    .stTabs [aria-selected="true"] {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark)) !important;
+        color: white !important;
+        font-weight: 600 !important;
+        box-shadow: 0 4px 12px var(--primary-glow);
+    }
+    
+    .stTabs [data-baseweb="tab-highlight"],
+    .stTabs [data-baseweb="tab-border"] {
+        display: none !important;
+    }
+    
+    /* ===================== TABLA ===================== */
+    [data-testid="stDataFrame"] {
+        border: 1px solid var(--glass-border) !important;
+        border-radius: var(--radius-lg) !important;
+        overflow: hidden !important;
+    }
+    
     .dataframe {
         border-collapse: collapse !important;
-        background: var(--card-bg) !important;
-        border-radius: 12px !important;
+        background: var(--card-bg-solid) !important;
+        border-radius: var(--radius-lg) !important;
         overflow: hidden !important;
     }
     
     .dataframe th {
-        background: linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(79, 70, 229, 0.2) 100%) !important;
-        border: 1px solid var(--border-color) !important;
+        background: linear-gradient(135deg, rgba(124, 58, 237, 0.15) 0%, rgba(6, 182, 212, 0.1) 100%) !important;
+        border: 1px solid rgba(255,255,255,0.05) !important;
         color: var(--primary-light) !important;
-        padding: 12px 16px !important;
-        font-weight: 700 !important;
-        font-family: 'Poppins', sans-serif !important;
+        padding: 14px 16px !important;
+        font-weight: 600 !important;
+        font-family: 'Space Grotesk', sans-serif !important;
         text-align: left !important;
-        font-size: 0.9rem !important;
+        font-size: 0.85rem !important;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
     }
     
     .dataframe td {
-        border: 1px solid var(--border-color) !important;
+        border: 1px solid rgba(255,255,255,0.03) !important;
         padding: 12px 16px !important;
         color: var(--text-primary) !important;
         font-size: 0.9rem !important;
     }
     
     .dataframe tbody tr:hover {
-        background: rgba(99, 102, 241, 0.1) !important;
+        background: rgba(124, 58, 237, 0.06) !important;
     }
     
-    /* Columnas */
-    .stColumn {
-        gap: 1rem;
+    /* ===================== CHECKBOX ===================== */
+    .stCheckbox label span {
+        color: var(--text-secondary) !important;
+        font-size: 0.88rem !important;
     }
     
-    /* Alert/Info boxes */
+    /* ===================== SELECTBOX ===================== */
+    [data-baseweb="select"] > div {
+        background: rgba(10, 14, 26, 0.6) !important;
+        border: 1px solid rgba(255,255,255,0.08) !important;
+        border-radius: var(--radius-md) !important;
+        transition: all 0.3s ease !important;
+    }
+    
+    [data-baseweb="select"] > div:hover {
+        border-color: var(--primary) !important;
+    }
+    
+    /* ===================== DIVIDER ===================== */
+    hr {
+        border: none !important;
+        height: 1px !important;
+        background: linear-gradient(90deg, transparent, rgba(124,58,237,0.3), transparent) !important;
+        margin: 1.5rem 0 !important;
+    }
+    
+    /* ===================== ALERTS ===================== */
     [data-testid="stAlertContainer"] {
-        border-radius: 12px !important;
+        border-radius: var(--radius-md) !important;
         border: none !important;
     }
     
     [data-testid="stAlert"] {
-        background: rgba(16, 185, 129, 0.1) !important;
+        background: var(--success-light) !important;
         border: 1px solid var(--success) !important;
-        border-radius: 12px !important;
-        padding: 1rem !important;
+        border-radius: var(--radius-md) !important;
+        padding: 0.9rem 1rem !important;
+        backdrop-filter: blur(8px) !important;
     }
     
     [data-testid="stWarningAlert"] {
-        background: rgba(245, 158, 11, 0.1) !important;
+        background: var(--warning-light) !important;
         border: 1px solid var(--warning) !important;
     }
     
     [data-testid="stErrorAlert"] {
-        background: rgba(239, 68, 68, 0.1) !important;
+        background: var(--danger-light) !important;
         border: 1px solid var(--danger) !important;
     }
     
-    /* Sidebar */
+    /* ===================== SIDEBAR ===================== */
     [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%) !important;
-        border-right: 1px solid var(--border-color) !important;
+        background: linear-gradient(180deg, var(--dark-bg-2) 0%, var(--dark-bg) 100%) !important;
+        border-right: 1px solid var(--glass-border) !important;
     }
     
-    /* Expandersidebar */
+    /* ===================== EXPANDER ===================== */
     [data-testid="stExpander"] {
-        border: 1px solid var(--border-color) !important;
-        border-radius: 10px !important;
-        background: var(--card-bg) !important;
+        border: 1px solid var(--glass-border) !important;
+        border-radius: var(--radius-md) !important;
+        background: var(--glass-bg) !important;
+        backdrop-filter: blur(12px) !important;
     }
     
     [data-testid="stExpander"] > div > button {
@@ -343,11 +549,11 @@ def aplicar_estilos():
         padding: 1rem !important;
     }
     
-    /* Animaciones */
-    @keyframes slideDown {
+    /* ===================== ANIMACIONES ===================== */
+    @keyframes fadeInDown {
         from {
             opacity: 0;
-            transform: translateY(-20px);
+            transform: translateY(-16px);
         }
         to {
             opacity: 1;
@@ -355,10 +561,10 @@ def aplicar_estilos():
         }
     }
     
-    @keyframes slideUp {
+    @keyframes fadeInUp {
         from {
             opacity: 0;
-            transform: translateY(20px);
+            transform: translateY(24px);
         }
         to {
             opacity: 1;
@@ -367,15 +573,16 @@ def aplicar_estilos():
     }
     
     @keyframes fadeIn {
-        from {
-            opacity: 0;
-        }
-        to {
-            opacity: 1;
-        }
+        from { opacity: 0; }
+        to { opacity: 1; }
     }
     
-    /* Responsive */
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+    }
+    
+    /* ===================== RESPONSIVE ===================== */
     @media (max-width: 768px) {
         .hero-content {
             flex-direction: column;
@@ -383,7 +590,7 @@ def aplicar_estilos():
         }
         
         .hero-text h1 {
-            font-size: 1.6rem;
+            font-size: 1.4rem;
         }
         
         .hero-stats {
@@ -391,11 +598,17 @@ def aplicar_estilos():
         }
         
         [data-testid="stMainBlockContainer"] {
-            padding: 1rem 1.5rem !important;
+            padding: 1rem 1rem !important;
         }
         
-        .login-card {
+        .login-glass {
             margin: 1rem;
+            padding: 2rem 1.5rem;
+        }
+        
+        .stat-badge {
+            min-width: 75px;
+            padding: 0.5rem 0.8rem;
         }
     }
     </style>
@@ -533,38 +746,45 @@ class GestorTareas:
 
 def pantalla_login():
     """Renderiza la pantalla de login"""
-    st.markdown('<div class="login-container">', unsafe_allow_html=True)
     
-    col1, col2, col3 = st.columns([1, 1.2, 1])
+    # Espaciador superior mínimo para centrar visualmente
+    st.markdown('<div style="height: 4vh;"></div>', unsafe_allow_html=True)
+    
+    col1, col2, col3 = st.columns([1.2, 1, 1.2])
     with col2:
+        # Branding
         st.markdown("""
-        <div class="login-card">
-            <h2>🔐 Acceso Seguro</h2>
-            <p>Ingresa tu código de acceso para continuar</p>
+        <div class="login-wrapper">
+            <div class="login-brand">
+                <div class="brand-icon">📚</div>
+                <h1>Miwis</h1>
+                <p>Gestor de Tareas Académicas</p>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # Card de login con glass effect
+        st.markdown("""
+        <div class="login-glass" style="margin: -1rem auto 0 auto;">
+            <h2>Bienvenido de vuelta</h2>
+            <p>Ingresa tu código para continuar</p>
         </div>
         """, unsafe_allow_html=True)
         
         codigo = st.text_input(
             "Código de acceso",
             type="password",
-            placeholder="0000",
-            max_chars=4
+            placeholder="****",
+            max_chars=4,
+            label_visibility="collapsed"
         )
         
-        col_a, col_b = st.columns(2)
-        with col_a:
-            if st.button("🔓 Entrar", use_container_width=True):
-                if GestorAutenticacion.verificar_codigo(codigo):
-                    st.session_state["autenticado"] = True
-                    st.rerun()
-                else:
-                    st.error("❌ Código incorrecto. Intenta nuevamente.")
-        
-        with col_b:
-            if st.button("ℹ️ Código inicial", use_container_width=True):
-                st.info("💡 El código de acceso inicial es: **0000**")
-    
-    st.markdown('</div>', unsafe_allow_html=True)
+        if st.button("🔓 Ingresar", use_container_width=True):
+            if GestorAutenticacion.verificar_codigo(codigo):
+                st.session_state["autenticado"] = True
+                st.rerun()
+            else:
+                st.error("❌ Código incorrecto. Intenta nuevamente.")
 
 # ============================================================================
 # PANTALLA PRINCIPAL
@@ -586,25 +806,21 @@ def pantalla_principal():
     <div class="hero-banner">
         <div class="hero-content">
             <div class="hero-text">
-                <h1>📚 Gestor de Tareas Miwis</h1>
-                <p>Control de actividades académicas de Miwiwita</p>
+                <h1>📚 Tareas Miwis</h1>
+                <p>Control de actividades académicas de Miwiwita · {fecha_actual}</p>
             </div>
             <div class="hero-stats">
                 <div class="stat-badge">
-                    <span>📅 Hoy:</span>
-                    <strong>{fecha_actual}</strong>
-                </div>
-                <div class="stat-badge">
-                    <span>📊 Total:</span>
                     <strong>{stats['total']}</strong>
+                    <span>Total</span>
                 </div>
                 <div class="stat-badge">
-                    <span>✅ Completadas:</span>
                     <strong>{stats['terminadas']}</strong>
+                    <span>Hechas</span>
                 </div>
                 <div class="stat-badge">
-                    <span>⏳ Pendientes:</span>
                     <strong>{stats['pendientes']}</strong>
+                    <span>Pendientes</span>
                 </div>
             </div>
         </div>
@@ -622,12 +838,16 @@ def pantalla_principal():
     # TAB: MIS TAREAS
     # ========================================================================
     with tab_tareas:
-        st.subheader("📋 Tareas Registradas")
-        
         df = st.session_state["tareas"]
         
         if df.empty:
-            st.info("📭 No hay tareas registradas. ¡Crea una nueva para comenzar!")
+            st.markdown("""
+            <div class="card" style="text-align: center; padding: 3rem 2rem;">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">📭</div>
+                <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem;">No hay tareas registradas</div>
+                <div style="color: var(--text-muted); font-size: 0.9rem;">¡Crea una nueva tarea para comenzar!</div>
+            </div>
+            """, unsafe_allow_html=True)
         else:
             # Crear tabla personalizada con columnas adicionales
             df_display = df.copy()
@@ -652,7 +872,7 @@ def pantalla_principal():
                 # Crear dos sub-columnas para tabla y acciones
                 st.dataframe(
                     df_display[columnas_display],
-                    use_container_width=True,
+                    width="stretch",
                     hide_index=True,
                     height=400
                 )
@@ -665,48 +885,63 @@ def pantalla_principal():
             col1, col2 = st.columns(2)
             
             with col1:
-                st.write("**Marcar como completada:**")
-                tarea_marcar = st.selectbox(
-                    "Selecciona una tarea",
-                    options=df[~df['Terminado']]['Nombre de la tarea'].tolist() if len(df[~df['Terminado']]) > 0 else ["No hay tareas pendientes"],
-                    label_visibility="collapsed",
-                    key="select_marcar"
-                )
-                
-                if tarea_marcar != "No hay tareas pendientes":
-                    if st.button("✅ Marcar como completada", use_container_width=True, key="btn_marcar"):
-                        task_id = df[df['Nombre de la tarea'] == tarea_marcar]['id'].iloc[0]
-                        GestorTareas.toggle_terminada(task_id)
+                st.write("**Cambiar estado de tarea:**")
+                # Mostrar TODAS las tareas para poder marcar/desmarcar
+                opciones_estado = df['Nombre de la tarea'].tolist()
+                if opciones_estado:
+                    tarea_marcar = st.selectbox(
+                        "Selecciona una tarea",
+                        options=opciones_estado,
+                        label_visibility="collapsed",
+                        key="select_marcar"
+                    )
+                    
+                    # Determinar estado actual de la tarea seleccionada
+                    fila = df[df['Nombre de la tarea'] == tarea_marcar].iloc[0]
+                    esta_terminada = fila['Terminado']
+                    
+                    if esta_terminada:
+                        if st.button("🔄 Marcar como pendiente", use_container_width=True, key="btn_marcar"):
+                            GestorTareas.toggle_terminada(fila['id'])
+                    else:
+                        if st.button("✅ Marcar como completada", use_container_width=True, key="btn_marcar"):
+                            GestorTareas.toggle_terminada(fila['id'])
+                else:
+                    st.info("No hay tareas registradas.")
             
             with col2:
                 st.write("**Eliminar tarea:**")
-                tarea_eliminar = st.selectbox(
-                    "Selecciona una tarea",
-                    options=df['Nombre de la tarea'].tolist(),
-                    label_visibility="collapsed",
-                    key="select_eliminar"
-                )
-                
-                if st.button("🗑️ Eliminar tarea", use_container_width=True, key="btn_eliminar", type="secondary"):
-                    if st.session_state.get("confirmar_eliminar", False):
-                        task_id = df[df['Nombre de la tarea'] == tarea_eliminar]['id'].iloc[0]
-                        GestorTareas.eliminar_tarea(task_id)
-                    else:
-                        st.session_state["confirmar_eliminar"] = True
-                        st.warning(f"⚠️ ¿Estás seguro de que deseas eliminar: **{tarea_eliminar}**? Haz clic nuevamente para confirmar.")
-                        st.session_state["confirmar_eliminar"] = False
+                opciones_eliminar = df['Nombre de la tarea'].tolist()
+                if opciones_eliminar:
+                    tarea_eliminar = st.selectbox(
+                        "Selecciona una tarea",
+                        options=opciones_eliminar,
+                        label_visibility="collapsed",
+                        key="select_eliminar"
+                    )
+                    
+                    confirmar = st.checkbox(
+                        f"Confirmo eliminar: **{tarea_eliminar}**",
+                        key="check_confirmar_eliminar"
+                    )
+                    
+                    if st.button("🗑️ Eliminar tarea", use_container_width=True, key="btn_eliminar", type="secondary"):
+                        if confirmar:
+                            task_id = df[df['Nombre de la tarea'] == tarea_eliminar]['id'].iloc[0]
+                            GestorTareas.eliminar_tarea(task_id)
+                        else:
+                            st.warning("⚠️ Marca la casilla de confirmación antes de eliminar.")
+                else:
+                    st.info("No hay tareas para eliminar.")
     
     # ========================================================================
     # TAB: AGREGAR TAREA
     # ========================================================================
     with tab_agregar:
-        st.subheader("➕ Agregar Nueva Tarea")
-        
         st.markdown("""
-        <div class="card" style="margin-bottom: 2rem;">
-            <p style="margin: 0; color: var(--text-secondary);">
-                📝 Completa el formulario para registrar una nueva tarea académica. 
-                Asegúrate de ingresar correctamente las fechas de recepción y entrega.
+        <div class="card" style="margin-bottom: 1.5rem;">
+            <p style="margin: 0; color: var(--text-secondary); font-size: 0.9rem;">
+                📝 Completa el formulario para registrar una nueva tarea académica.
             </p>
         </div>
         """, unsafe_allow_html=True)
@@ -832,26 +1067,31 @@ def pantalla_principal():
             
             stats = GestorTareas.obtener_estadisticas()
             
+            porcentaje = stats['porcentaje']
             st.markdown(f"""
             <div class="card">
-                <div style="text-align: center; padding: 1rem;">
-                    <div style="font-size: 2.5rem; font-weight: 700; color: var(--primary); margin-bottom: 0.5rem;">
+                <div style="text-align: center; padding: 1.5rem 1rem;">
+                    <div style="font-size: 3rem; font-weight: 800; background: linear-gradient(135deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 0.25rem;">
                         {stats['total']}
                     </div>
-                    <div style="color: var(--text-secondary); margin-bottom: 1.5rem;">Total de tareas</div>
+                    <div style="color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;">Total de tareas</div>
+                    
+                    <div style="background: rgba(255,255,255,0.04); border-radius: 10px; height: 6px; margin-bottom: 1.5rem; overflow: hidden;">
+                        <div style="background: linear-gradient(90deg, var(--primary), var(--accent)); height: 100%; border-radius: 10px; width: {porcentaje}%; transition: width 0.5s ease;"></div>
+                    </div>
                     
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                        <div>
-                            <div style="font-size: 1.8rem; font-weight: 700; color: var(--success); margin-bottom: 0.25rem;">
+                        <div style="background: var(--success-light); border-radius: 12px; padding: 1rem;">
+                            <div style="font-size: 1.8rem; font-weight: 700; color: var(--success); margin-bottom: 0.2rem;">
                                 {stats['terminadas']}
                             </div>
-                            <div style="font-size: 0.85rem; color: var(--text-muted);">Completadas</div>
+                            <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em;">Completadas</div>
                         </div>
-                        <div>
-                            <div style="font-size: 1.8rem; font-weight: 700; color: var(--warning); margin-bottom: 0.25rem;">
+                        <div style="background: var(--warning-light); border-radius: 12px; padding: 1rem;">
+                            <div style="font-size: 1.8rem; font-weight: 700; color: var(--warning); margin-bottom: 0.2rem;">
                                 {stats['pendientes']}
                             </div>
-                            <div style="font-size: 0.85rem; color: var(--text-muted);">Pendientes</div>
+                            <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em;">Pendientes</div>
                         </div>
                     </div>
                 </div>
