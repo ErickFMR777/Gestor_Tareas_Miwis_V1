@@ -704,7 +704,9 @@ class GestorTareas:
             [df, pd.DataFrame([nueva_tarea])],
             ignore_index=True
         )
-        guardar_tareas(st.session_state["tareas"])
+        if not guardar_tareas(st.session_state["tareas"]):
+            st.session_state["tareas"] = df
+            return False, "❌ Error al guardar la actividad. Intenta de nuevo."
         return True, "✅ Actividad agregada correctamente"
     
     @staticmethod
@@ -714,17 +716,21 @@ class GestorTareas:
         mask = df['id'] == task_id
         if mask.any():
             idx = df[mask].index[0]
-            df.at[idx, 'Terminado'] = not df.at[idx, 'Terminado']
+            valor_anterior = df.at[idx, 'Terminado']
+            df.at[idx, 'Terminado'] = not valor_anterior
             st.session_state["tareas"] = df
-            guardar_tareas(df)
+            if not guardar_tareas(df):
+                df.at[idx, 'Terminado'] = valor_anterior
+                st.session_state["tareas"] = df
             st.rerun()
     
     @staticmethod
     def eliminar_tarea(task_id: str):
         """Elimina una tarea"""
         df = st.session_state["tareas"]
-        st.session_state["tareas"] = df[df['id'] != task_id].reset_index(drop=True)
-        guardar_tareas(st.session_state["tareas"])
+        df_nuevo = df[df['id'] != task_id].reset_index(drop=True)
+        if guardar_tareas(df_nuevo):
+            st.session_state["tareas"] = df_nuevo
         st.rerun()
     
     @staticmethod
@@ -1027,6 +1033,8 @@ def pantalla_principal():
     # TAB: AGREGAR TAREA
     # ========================================================================
     with tab_agregar:
+        if st.session_state.get("tarea_agregada"):
+            st.success(st.session_state.pop("tarea_agregada"))
         st.markdown("""
         <div class="card" style="margin-bottom: 1.5rem;">
             <p style="margin: 0; color: var(--text-secondary); font-size: 0.9rem;">
@@ -1108,7 +1116,7 @@ def pantalla_principal():
                 )
                 
                 if exito:
-                    st.success(mensaje)
+                    st.session_state["tarea_agregada"] = mensaje
                     st.rerun()
                 else:
                     st.error(mensaje)
