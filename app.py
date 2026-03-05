@@ -805,6 +805,10 @@ def pantalla_login():
 def pantalla_principal():
     """Renderiza la pantalla principal de la aplicación"""
     
+    # Mostrar confirmación temporal si se acaba de agregar una actividad
+    if st.session_state.pop("tarea_agregada", False):
+        st.toast("Actividad agregada correctamente", icon="✅")
+    
     # Inicializar datos
     GestorAutenticacion.inicializar_sesion()
     GestorTareas.inicializar()
@@ -1033,29 +1037,6 @@ def pantalla_principal():
     # TAB: AGREGAR TAREA
     # ========================================================================
     with tab_agregar:
-        if st.session_state.get("tarea_agregada"):
-            _msg = st.session_state.pop("tarea_agregada")
-            _uid = str(uuid4())[:8]
-            st.markdown(f"""
-            <div id="alerta-exito-{_uid}" style="
-                background: rgba(16, 185, 129, 0.15);
-                border: 1px solid #10b981;
-                border-radius: 10px;
-                padding: 0.8rem 1.2rem;
-                margin-bottom: 1rem;
-                color: #10b981;
-                font-weight: 500;
-                font-size: 0.95rem;
-                animation: fadeOutMsg_{_uid} 4s ease-in-out forwards;
-            ">{_msg}</div>
-            <style>
-                @keyframes fadeOutMsg_{_uid} {{
-                    0% {{ opacity: 1; }}
-                    70% {{ opacity: 1; }}
-                    100% {{ opacity: 0; height: 0; padding: 0; margin: 0; border: none; overflow: hidden; }}
-                }}
-            </style>
-            """, unsafe_allow_html=True)
         st.markdown("""
         <div class="card" style="margin-bottom: 1.5rem;">
             <p style="margin: 0; color: var(--text-secondary); font-size: 0.9rem;">
@@ -1137,7 +1118,7 @@ def pantalla_principal():
                 )
                 
                 if exito:
-                    st.session_state["tarea_agregada"] = mensaje
+                    st.session_state["tarea_agregada"] = True
                     st.rerun()
                 else:
                     st.error(mensaje)
