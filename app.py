@@ -994,8 +994,8 @@ def pantalla_principal():
                     tipo = row.get('Tipo de actividad', 'Tarea')
                     tipo_icon = "📝" if tipo == "Tarea" else "📄"
                     
-                    fecha_rec = pd.to_datetime(row['Fecha de recepción']).strftime('%d/%m/%Y')
-                    fecha_ent = pd.to_datetime(row['Fecha de entrega']).strftime('%d/%m/%Y')
+                    fecha_rec = str(row['Fecha de recepción'])
+                    fecha_ent = str(row['Fecha de entrega'])
                     
                     col_info, col_materia, col_tipo, col_frec, col_fent, col_estado, col_acciones = st.columns([2.5, 1.5, 1.2, 1.5, 1.5, 1, 1.3])
                     

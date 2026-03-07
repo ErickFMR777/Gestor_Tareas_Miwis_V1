@@ -31,8 +31,30 @@ def guardar_tareas(df: pd.DataFrame) -> bool:
                 json.dump([], f, ensure_ascii=False, indent=2)
             return True
         
-        # Convertir DataFrame a lista de diccionarios
-        tareas_lista = df.to_dict('records')
+        # Migrar columnas antiguas antes de guardar
+        if 'Nombre de la tarea' in df.columns and 'Nombre de la actividad' not in df.columns:
+            df = df.rename(columns={'Nombre de la tarea': 'Nombre de la actividad'})
+        if 'Fecha recibido' in df.columns and 'Fecha de recepción' not in df.columns:
+            df = df.rename(columns={'Fecha recibido': 'Fecha de recepción'})
+        
+        # Asegurar columnas requeridas con nombres correctos
+        columnas_requeridas = [
+            'id', 'Nombre de la actividad', 'Materia',
+            'Tipo de actividad', 'Fecha de recepción',
+            'Fecha de entrega', 'Terminado'
+        ]
+        for col in columnas_requeridas:
+            if col not in df.columns:
+                if col == 'Terminado':
+                    df[col] = False
+                elif col == 'Tipo de actividad':
+                    df[col] = 'Tarea'
+                else:
+                    df[col] = ''
+        
+        # Convertir DataFrame a lista de diccionarios solo con columnas válidas
+        cols_guardar = [c for c in columnas_requeridas if c in df.columns]
+        tareas_lista = df[cols_guardar].to_dict('records')
         
         # Guardar en JSON
         with open(TAREAS_FILE, 'w', encoding='utf-8') as f:
@@ -100,6 +122,7 @@ def cargar_tareas() -> pd.DataFrame:
     except Exception as e:
         print(f"Error al cargar tareas: {e}")
         return pd.DataFrame(columns=[
-            'id', 'Nombre de la tarea', 'Materia', 
-            'Fecha recibido', 'Fecha de entrega', 'Terminado'
+            'id', 'Nombre de la actividad', 'Materia',
+            'Tipo de actividad', 'Fecha de recepción',
+            'Fecha de entrega', 'Terminado'
         ])
